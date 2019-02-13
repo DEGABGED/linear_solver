@@ -46,20 +46,25 @@ TIME_RANGE          = 60 # run for this many seconds
 
 MEAN_CAR_LENGTH     = 15.8 # ft
 
+CELL_SOURCE         = 0
+CELL_SINK           = 1
+CELL_MOVEMENT       = 2
+CELL_NORMAL         = 3
+
 # Sets
 set_T = range(TIME_RANGE)
 # Source cells: (0,approach_id)
-set_C_O = [(0,0,i)
+set_C_O = [(CELL_SOURCE,0,i)
     for i in range(APPROACHES)]
 # Sink cells: (0,approach_id)
-set_C_S = [(1,0,i)
+set_C_S = [(CELL_SINK,0,i)
     for i in range(APPROACHES)]
 # Movement cells: (movement_id, apporach_id)
-set_C_I = [(2,i,j)
+set_C_I = [(CELL_MOVEMENT,i,j)
     for i in range(MOVEMENT_CELLS)
     for j in range(APPROACHES)]
 # Normal cells: (cell_id, approach_id)
-set_C_N = [(3,i,j)
+set_C_N = [(CELL_NORMAL,i,j)
     for i in range(APPROACH_CELLS)
     for j in range(APPROACHES)]
 # Set of all cells: (cell_type, x, y)
@@ -83,10 +88,45 @@ def F_mapping(i):
     return SAT_FLOW_RATE * APPROACH_LANES
 
 def P_mapping(i):
-    pass
+    # 1. For source cells, return empty set
+    if i[0] == CELL_SOURCE:
+        return []
+    # 2. For sink cells, return movement cells that lead to sink cell
+    if i[0] == CELL_SINK:
+        output = []
+        # Add left turn of right approach
+        output.append((CELL_MOVEMENT,0,(i[2]+3)%4))
+        # Add through turn of front approach
+        output.append((CELL_MOVEMENT,1,(i[2]+2)%4))
+        # Add right turn of left approach
+        output.append((CELL_MOVEMENT,2,(i[2]+1)%4))
+        return output
+    # 3. For movement cells, return the previous cell
+    if i[0] == CELL_MOVEMENT:
+        return [(CELL_NORMAL,APPROACH_CELLS-1,i[2])]
+    # 4. For normal cells, return the previous cell
+    if i[0] == CELL_NORMAL:
+        if i[1] == 0:
+            return [(CELL_SOURCE,0,i[2])]
+        else:
+            return [(CELL_SINK,i[1]-1,i[2])]
 
 def S_mapping(i):
-    return [(0,0,0)]
+    # 1. For source cells, return the next cell
+    if i[0] == CELL_SOURCE:
+        return [(CELL_NORMAL,0,i[2])]
+    # 2. For sink cells, return empty set
+    if i[0] == CELL_SINK:
+        return []
+    # 3. For movement cells, return the sink cell
+    if i[0] == CELL_MOVEMENT:
+        return [(CELL_SINK,0,i[2])]
+    # 4. For normal cells, return the next cell/s
+    if i[0] == CELL_NORMAL:
+        if i[1] == APPROACH_CELLS-1:
+            return [(CELL_MOVEMENT,x,i[2]) for x in range(MOVEMENT_CELLS)]
+        else:
+            return [(CELL_NORMAL,i[1]+1,i[2])]
 
 d = {(i,t): FLOW_SAT*APPROACH_LANES*TIME_STEP / (3600)
     for i in set_C_O
