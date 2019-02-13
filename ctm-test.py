@@ -14,8 +14,8 @@ FREE_FLOW_SPEED     = 44 # ft / s
 CELL_LENGTH         = 88 # ft
 SAT_FLOW_RATE       = 1 # vehicles / timestep
 FLOW_RATE_REDUCTION = 0.5 # Not speciifed
-G_MIN               = 6 # seconds
-G_MAX               = 20 # seconds
+G_MIN               = 6 # seconds (change to 30)
+G_MAX               = 20 # seconds (change to 120)
 
 FLOW_UNDERSAT       = 450 # veh / hr / lane
 FLOW_SAT            = 900 
