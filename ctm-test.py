@@ -76,17 +76,6 @@ set_C_labels = [
     'normal'
 ]
 
-# Parameters
-def M_mapping(i):
-    if i in set_C_I:
-        return int(CELL_LENGTH / MEAN_CAR_LENGTH) * TURN_LANES[i[1]]
-    return int(CELL_LENGTH / MEAN_CAR_LENGTH) * APPROACH_LANES 
-
-def F_mapping(i):
-    if i in set_C_I:
-        return SAT_FLOW_RATE * TURN_LANES[i[1]]
-    return SAT_FLOW_RATE * APPROACH_LANES
-
 def P_mapping(i):
     # 1. For source cells, return empty set
     if i[0] == CELL_SOURCE:
@@ -127,6 +116,24 @@ def S_mapping(i):
             return [(CELL_MOVEMENT,x,i[2]) for x in range(MOVEMENT_CELLS)]
         else:
             return [(CELL_NORMAL,i[1]+1,i[2])]
+
+P = {i: P_mapping(i)
+    for i in set_C}
+
+S = {i: S_mapping(i)
+    for i in set_C}
+
+# Parameters
+def M_mapping(i):
+    if i in set_C_I:
+        return int(CELL_LENGTH / MEAN_CAR_LENGTH) * TURN_LANES[i[1]]
+    return int(CELL_LENGTH / MEAN_CAR_LENGTH) * APPROACH_LANES 
+
+def F_mapping(i):
+    if i in set_C_I:
+        return SAT_FLOW_RATE * TURN_LANES[i[1]]
+    return SAT_FLOW_RATE * APPROACH_LANES
+
 
 d = {(i,t): FLOW_SAT*APPROACH_LANES*TIME_STEP / (3600)
     for i in set_C_O
