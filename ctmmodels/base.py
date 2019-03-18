@@ -15,12 +15,14 @@ class BaseModel(object):
     alpha               = 1
     model_name          = 'Thesis MILP Model'
 
-    def __init__(self, demand=600, time_step=3, time_range=10, flow_weight=0.2, alpha=1, model_name='Thesis MILP Model'):
+    def __init__(self, demand=600, time_step=3, time_range=10, g_min=2, g_max=5, flow_weight=0.2, alpha=1, model_name='Thesis MILP Model'):
         self.model_name = model_name
         self.model = cpx.Model(name=self.model_name)
         self.demand = demand
         self.time_step = time_step
         self.time_range = time_range
+        self.g_max = g_max
+        self.g_min = g_min
         self.flow_weight = flow_weight
         self.alpha = alpha
 
@@ -77,7 +79,7 @@ class BaseModel(object):
                 return self.sat_flow_rate * TURN_LANES[i[1]]
             return self.sat_flow_rate * APPROACH_LANES
 
-        self.d = {(i,t): (float) (self.flow_weight * APPROACH_LANES * self.time_step) / (3600)
+        self.d = {(i,t): (float) (self.demand * APPROACH_LANES * self.time_step) / (3600)
             for i in self.set_C_O
             for t in self.set_T}
 
@@ -117,6 +119,7 @@ class BaseModel(object):
         self._g_count = len(self.g_vars)
         self._x_count = len(self.x_vars)
         self._y_count = len(self.y_vars)
+        self._vars_count = self._g_count + self._x_count + self._y_count
 
     def generate_constraints(self):
         '''
