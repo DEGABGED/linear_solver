@@ -1,3 +1,12 @@
+PAPER_PARAMETERS    = {
+    'FREE_FLOW_SPEED': 44,
+    'SAT_FLOW_RATE': 1,
+    'CELL_LENGTH': 88,
+    'TIME_STEP': 2,
+    'G_MIN': 3,
+    'G_MAX': 10,
+}
+
 TOTAL_CELL_COUNT    = 32
 MOVEMENT_CELLS      = 3 # Number of movement cells per approach
 APPROACH_CELLS      = 3 # Number of cells in each approach

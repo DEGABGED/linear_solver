@@ -4,30 +4,49 @@ import time
 from ctmmodels.const import *
 
 class BaseModel(object):
-    sat_flow_rate       = 1 # vehicles / timestep
-    flow_rate_reduction = 0.5 # Not specified in the paper
-    g_min               = 6 # timesteps (change to 30 seconds)
-    g_max               = 20 # timesteps (change to 120 seconds)
-    time_step           = 1 # seconds / time step; NOT FROM PAPER
-    time_range          = 60 # run for this many timesteps
-    demand              = 600 # saturation
-    flow_weight         = 0.2
-    alpha               = 1
-    model_name          = 'Thesis MILP Model'
+    # sat_flow_rate       = 0.5 # vehicles / second
+    # flow_rate_reduction = 0.5 # Not specified in the paper
+    # g_min               = 6 # seconds (change to 30 seconds)
+    # g_max               = 20 # seconds (change to 120 seconds)
+    # time_step           = 2 # seconds / time step; NOT FROM PAPER
+    # time_range          = 30 # run for this many timesteps
+    # demand              = 600 # saturation
+    # flow_weight         = 0.2
+    # alpha               = 1
+    # model_name          = 'Thesis MILP Model'
 
-    def __init__(self, sat_flow_rate=1, flow_rate_reduction=0.5, g_min=6,
-                g_max=20, time_step=1, time_range=60, demand=600, flow_weight=0.2,
-                alpha=1, model_name='Thesis MILP Model'):
+    cell_length         = FREE_FLOW_SPEED # requirement to meaasure delay accurately in CTM
+
+    '''
+    NOTE: The original paper used a saturation flow rate of 1 vehicle per time step per cell. This gives us a saturated inflow of 1 veh / 4 lanes / 2 sec = 0.125 veh per second, or 450 veh per hr per lane, which the paper labels as undersaturated. The paper gave no threshold for saturated flow, hence the usage of 1 as the saturated flow rate per timestep.
+    '''
+
+    def __init__(self,
+                sat_flow_rate       = 450,  # veh / hr / lane
+                flow_rate_reduction = 0.5,
+                g_min               = 6,    # sec
+                g_max               = 20,   # sec
+                time_step           = 2,    # sec / timestep
+                time_range          = 30,   # timesteps (for ease of gauging the program's size)
+                demand              = 600,  # veh / hr / lane
+                flow_weight         = 0.2,
+                alpha               = 1,
+                model_name          = 'Thesis MILP Model'):
+
         self.model_name = model_name
         self.model = cpx.Model(name=self.model_name)
 
-        self.sat_flow_rate = sat_flow_rate
-        self.flow_rate_reduction = flow_rate_reduction
-        self.g_min = g_min
-        self.g_max = g_max
+        # Convert all units from seconds to timesteps
         self.time_step = time_step
         self.time_range = time_range
-        self.demand = demand
+
+        self.sat_flow_rate = (float) (sat_flow_rate * time_step) / (3600)  # veh / timesteps / lane
+        self.demand = (float) (demand * time_step) / (3600)           # veh / timesteps / lane
+        self.g_min = g_min / time_step                                          # timesteps
+        self.g_max = g_max / time_step                                          # timesteps
+        self.cell_length = self.cell_length * time_step                    # ft (scaled)
+
+        self.flow_rate_reduction = flow_rate_reduction
         self.flow_weight = flow_weight
         self.alpha = alpha
 
@@ -74,17 +93,17 @@ class BaseModel(object):
     def generate_parameters(self):
         def M_mapping(i):
             if i in self.set_C_I:
-                return (CELL_LENGTH / MEAN_CAR_LENGTH) * TURN_LANES[i[1]]
+                return (self.cell_length / MEAN_CAR_LENGTH) * TURN_LANES[i[1]]
             elif i in self.set_C_O:
                 return float("inf")
-            return (CELL_LENGTH / MEAN_CAR_LENGTH) * APPROACH_LANES
+            return (self.cell_length / MEAN_CAR_LENGTH) * APPROACH_LANES
 
         def F_mapping(i):
             if i in self.set_C_I:
                 return self.sat_flow_rate * TURN_LANES[i[1]]
             return self.sat_flow_rate * APPROACH_LANES
 
-        self.d = {(i,t): (float) (self.demand * APPROACH_LANES * self.time_step) / (3600)
+        self.d = {(i,t): self.demand * APPROACH_LANES
             for i in self.set_C_O
             for t in self.set_T}
 
