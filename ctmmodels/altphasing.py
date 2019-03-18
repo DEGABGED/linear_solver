@@ -5,23 +5,55 @@ import time
 from ctmmodels.const import *
 from ctmmodels.base import BaseModel
 
-class Constraint5Model(BaseModel):
+class Constraint5AltPhasingModel(BaseModel):
 
     def __init__(self, *args, **kwargs):
-        super(Constraint5Model, self).__init__(*args, **kwargs)
+        super(Constraint5AltPhasingModel, self).__init__(*args, **kwargs)
+    
+    def generate_sets(self):
+        super(Constraint5AltPhasingModel, self).generate_sets()
         
-    def generate_constraint_5(self):
+        self.set_Phases = [(r, b, i) for r in range(2) for b in range(2) for i in range(2)]
+
+        _tmp = CELL_MOVEMENT
+
+        self.Phase_map = {
+            (0,0,0): [(_tmp, LEFT_TURN, WESTBOUND), (_tmp, RIGHT_TURN, NORTHBOUND)], # WBL, NBR
+            (0,0,1): [(_tmp, THROUGH_TURN, EASTBOUND), (_tmp, RIGHT_TURN, EASTBOUND)],
+            (0,1,0): [(_tmp, LEFT_TURN, SOUTHBOUND), (_tmp, RIGHT_TURN, WESTBOUND)],
+            (0,1,1): [(_tmp, THROUGH_TURN, SOUTHBOUND), (_tmp, RIGHT_TURN, SOUTHBOUND)],
+            (1,0,0): [(_tmp, LEFT_TURN, EASTBOUND), (_tmp, RIGHT_TURN, SOUTHBOUND)],
+            (1,0,1): [(_tmp, THROUGH_TURN, WESTBOUND), (_tmp, RIGHT_TURN, WESTBOUND)],
+            (1,1,0): [(_tmp, LEFT_TURN, NORTHBOUND), (_tmp, RIGHT_TURN, EASTBOUND)],
+            (1,1,1): [(_tmp, THROUGH_TURN, NORTHBOUND), (_tmp, RIGHT_TURN, NORTHBOUND)],
+        }
+
+    def generate_decision_vars(self):
+        super(Constraint5AltPhasingModel, self).generate_decision_vars()
+
+        self.g_vars = {(p,t): self.model.binary_var(
+            name="g_{}^{}".format(p,t))
+        for p in self.set_Phases
+        for t in self.set_T}
+
+        self._g_count = len(self.g_vars)
+        self._vars_count = self._g_count + self._x_count + self._y_count
+
+    def generate_constraints(self):
+        super(Constraint5AltPhasingModel, self).generate_constraints()
+
         green_flowrate = [
             (self.model.add_constraint(
                 ct=(
                     self.y_vars[(i,j,t)]
-                    - self.F[i]*self.g_vars[(i,t)]
+                    - self.F[i]*self.g_vars[(p,t)]
                     <= 0
                 ),
                 ctname="green_flowrate_{},{}^{}".format(i,j,t)
             ))
             for t in self.set_T
-            for i in self.set_C_I
+            for p in self.set_Phases
+            for i in self.Phase_map[p]
             for j in self.S[i]
         ]
 
@@ -30,14 +62,15 @@ class Constraint5Model(BaseModel):
                 ct=(
                     self.y_vars[(i,j,t+1)]
                     - self.F[i]
-                    + (self.F[i]*self.flow_rate_reduction)*self.g_vars[(i,t+1)]
-                    - (self.F[i]*self.flow_rate_reduction)*self.g_vars[(i,t)]
+                    + (self.F[i]*self.flow_rate_reduction)*self.g_vars[(p,t+1)]
+                    - (self.F[i]*self.flow_rate_reduction)*self.g_vars[(p,t)]
                     <= 0
                 ),
                 ctname="slowstart_flowrate_{},{}^{}".format(i,j,t+1)
             ))
             for t in self.set_T_bounded
-            for i in self.set_C_I
+            for p in self.set_Phases
+            for i in self.Phase_map[p]
             for j in self.S[i]
         ]
 
@@ -58,7 +91,7 @@ class Constraint5Model(BaseModel):
                 ctname='green_max_{}^{}'.format(i,t)
             ))
             for t in range(self.time_range - self.g_max - 1)
-            for i in self.set_C_I
+            for i in self.set_Phases
         ]
 
         green_min = [
@@ -72,7 +105,7 @@ class Constraint5Model(BaseModel):
                 ctname='green_min_{}^{}'.format(i,t)
             ))
             for t in range(self.time_range - self.g_min)
-            for i in self.set_C_I
+            for i in self.set_Phases
         ]
 
         self._constraints['greentime'] = {
@@ -85,11 +118,14 @@ class Constraint5Model(BaseModel):
         return self._constraints_count
 
     def generate(self):
-        super(Constraint5Model, self).generate()
-        self.generate_constraint_5()
+        self.generate_sets()
+        self.generate_parameters()
+        self.generate_decision_vars()
+        self.generate_constraints()
+        self.generate_objective_fxn()
 
 
-class Constraint6Model(Constraint5Model):
+class Constraint6AltPhasingModel(Constraint5AltPhasingModel):
 
     def __init__(self, *args, **kwargs):
         super(Constraint6Model, self).__init__(*args, **kwargs)

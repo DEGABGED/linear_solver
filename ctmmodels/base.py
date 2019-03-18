@@ -4,25 +4,30 @@ import time
 from ctmmodels.const import *
 
 class BaseModel(object):
-    sat_flow_rate       = 3 # vehicles / timestep
-    flow_rate_reduction = 0.5 # Not speciif
-    g_min               = 2 # timesteps (change to 30 seconds)
-    g_max               = 5 # timesteps (change to 120 seconds)
-    time_step           = 3 # seconds / time step; NOT FROM PAPER
-    time_range          = 10 # run for this many timesteps
+    sat_flow_rate       = 1 # vehicles / timestep
+    flow_rate_reduction = 0.5 # Not specified in the paper
+    g_min               = 6 # timesteps (change to 30 seconds)
+    g_max               = 20 # timesteps (change to 120 seconds)
+    time_step           = 1 # seconds / time step; NOT FROM PAPER
+    time_range          = 60 # run for this many timesteps
     demand              = 600 # saturation
     flow_weight         = 0.2
     alpha               = 1
     model_name          = 'Thesis MILP Model'
 
-    def __init__(self, demand=600, time_step=3, time_range=10, g_min=2, g_max=5, flow_weight=0.2, alpha=1, model_name='Thesis MILP Model'):
+    def __init__(self, sat_flow_rate=1, flow_rate_reduction=0.5, g_min=6,
+                g_max=20, time_step=1, time_range=60, demand=600, flow_weight=0.2,
+                alpha=1, model_name='Thesis MILP Model'):
         self.model_name = model_name
         self.model = cpx.Model(name=self.model_name)
-        self.demand = demand
+
+        self.sat_flow_rate = sat_flow_rate
+        self.flow_rate_reduction = flow_rate_reduction
+        self.g_min = g_min
+        self.g_max = g_max
         self.time_step = time_step
         self.time_range = time_range
-        self.g_max = g_max
-        self.g_min = g_min
+        self.demand = demand
         self.flow_weight = flow_weight
         self.alpha = alpha
 
@@ -296,10 +301,10 @@ class BaseModel(object):
         self.generate_constraints()
         self.generate_objective_fxn()
 
-    def solve(self):
+    def solve(self, log_output=False):
         start = time.time()
         print("Solving...")
-        self.model.solve()
+        self.model.solve(log_output=log_output)
         print("Done!")
         end = time.time()
         self._time = end - start

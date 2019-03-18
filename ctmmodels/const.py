@@ -5,6 +5,10 @@ APPROACHES          = 4 # Number of approaches per intersection
 APPROACH_LANES      = 4 # Number of lanes per approach
 PHASES              = 8 # Number of phases; if it will be used
 
+FLOW_UNDERSAT       = 450
+FLOW_SAT            = 600
+FLOW_OVERSAT        = 900
+
 FREE_FLOW_SPEED     = 44 # ft / s
 CELL_LENGTH         = 88 # ft
 
