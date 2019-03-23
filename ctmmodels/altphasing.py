@@ -10,7 +10,9 @@ class Constraint5AltPhasingModel(BaseModel):
     def __init__(self, *args, **kwargs):
         super(Constraint5AltPhasingModel, self).__init__(*args, **kwargs)
     
-    def generate_phases(self):
+    def generate_sets(self):
+        super(Constraint5AltPhasingModel, self).generate_sets()
+
         self.set_Phases = [(r, b, i) for r in range(2) for b in range(2) for i in range(2)]
 
         _tmp = CELL_MOVEMENT
@@ -37,7 +39,9 @@ class Constraint5AltPhasingModel(BaseModel):
             (1,1,1): [intToBinTuple(x) for x in [0,1,4,5,6]],
         }
 
-    def generate_g_vars(self):
+    def generate_decision_vars(self):
+        super(Constraint5AltPhasingModel, self).generate_decision_vars()
+
         self.g_vars = {(p,t): self.model.binary_var(
             name="g_{}^{}".format(p,t))
         for p in self.set_Phases
@@ -46,7 +50,9 @@ class Constraint5AltPhasingModel(BaseModel):
         self._g_count = len(self.g_vars)
         self._vars_count = self._g_count + self._x_count + self._y_count
 
-    def generate_constraint_5(self):
+    def generate_constraints(self):
+        super(Constraint5AltPhasingModel, self).generate_constraints()
+
         green_flowrate = [
             (self.model.add_constraint(
                 ct=(
@@ -123,10 +129,11 @@ class Constraint5AltPhasingModel(BaseModel):
         return self._constraints_count
 
     def generate(self):
-        super(Constraint5AltPhasingModel, self).generate()
-        self.generate_phases()
-        self.generate_g_vars()
-        self.generate_constraint_5()
+        self.generate_sets()
+        self.generate_parameters()
+        self.generate_decision_vars()
+        self.generate_constraints()
+        self.generate_objective_fxn()
 
     def return_solution(self):
         df_x, df_y = super(Constraint5AltPhasingModel, self).return_solution()
@@ -149,7 +156,9 @@ class Constraint6AltPhasingModel(Constraint5AltPhasingModel):
     def __init__(self, *args, **kwargs):
         super(Constraint6AltPhasingModel, self).__init__(*args, **kwargs)
         
-    def generate_constraint_6(self):
+    def generate_constraints(self):
+        super(Constraint6AltPhasingModel, self).generate_constraints()
+
         movements_count = [
             (self.model.add_constraint(
                 ct=(
@@ -197,5 +206,8 @@ class Constraint6AltPhasingModel(Constraint5AltPhasingModel):
         return self._constraints_count
 
     def generate(self):
-        super(Constraint6AltPhasingModel, self).generate()
-        self.generate_constraint_6()
+        self.generate_sets()
+        self.generate_parameters()
+        self.generate_decision_vars()
+        self.generate_constraints()
+        self.generate_objective_fxn()

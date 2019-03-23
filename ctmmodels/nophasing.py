@@ -10,7 +10,9 @@ class Constraint5Model(BaseModel):
     def __init__(self, *args, **kwargs):
         super(Constraint5Model, self).__init__(*args, **kwargs)
         
-    def generate_g_vars(self):
+    def generate_decision_vars(self):
+        super(Constraint5Model, self).generate_decision_vars()
+
         self.g_vars = {(i,t): self.model.binary_var(
             name="g_{}^{}".format(i,t))
         for i in self.set_C_I
@@ -19,7 +21,9 @@ class Constraint5Model(BaseModel):
         self._g_count = len(self.g_vars)
         self._vars_count = self._g_count + self._x_count + self._y_count
 
-    def generate_constraint_5(self):
+    def generate_constraints(self):
+        super(Constraint5Model, self).generate_constraints()
+
         green_flowrate = [
             (self.model.add_constraint(
                 ct=(
@@ -94,9 +98,11 @@ class Constraint5Model(BaseModel):
         return self._constraints_count
 
     def generate(self):
-        super(Constraint5Model, self).generate()
-        self.generate_g_vars()
-        self.generate_constraint_5()
+        self.generate_sets()
+        self.generate_parameters()
+        self.generate_decision_vars()
+        self.generate_constraints()
+        self.generate_objective_fxn()
 
     def return_solution(self):
         df_x, df_y = super(Constraint5Model, self).return_solution()
@@ -119,7 +125,9 @@ class Constraint6Model(Constraint5Model):
     def __init__(self, *args, **kwargs):
         super(Constraint6Model, self).__init__(*args, **kwargs)
         
-    def generate_constraint_6(self):
+    def generate_constraints(self):
+        super(Constraint6Model, self).generate_constraints()
+
         movements_min = [
             (self.model.add_constraint(
                 ct=(
@@ -179,5 +187,8 @@ class Constraint6Model(Constraint5Model):
         return self._constraints_count
 
     def generate(self):
-        super(Constraint6Model, self).generate()
-        self.generate_constraint_6()
+        self.generate_sets()
+        self.generate_parameters()
+        self.generate_decision_vars()
+        self.generate_constraints()
+        self.generate_objective_fxn()
