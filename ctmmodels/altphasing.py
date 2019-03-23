@@ -128,7 +128,7 @@ class Constraint5AltPhasingModel(BaseModel):
 class Constraint6AltPhasingModel(Constraint5AltPhasingModel):
 
     def __init__(self, *args, **kwargs):
-        super(Constraint6Model, self).__init__(*args, **kwargs)
+        super(Constraint6AltPhasingModel, self).__init__(*args, **kwargs)
         
     def generate_constraint_6(self):
         movements_min = [
@@ -178,5 +178,5 @@ class Constraint6AltPhasingModel(Constraint5AltPhasingModel):
         return self._constraints_count
 
     def generate(self):
-        super(Constraint6Model, self).generate()
+        super(Constraint6AltPhasingModel, self).generate()
         self.generate_constraint_6()

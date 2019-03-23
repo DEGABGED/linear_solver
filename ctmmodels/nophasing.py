@@ -10,6 +10,15 @@ class Constraint5Model(BaseModel):
     def __init__(self, *args, **kwargs):
         super(Constraint5Model, self).__init__(*args, **kwargs)
         
+    def generate_g_vars(self):
+        self.g_vars = {(i,t): self.model.binary_var(
+            name="g_{}^{}".format(i,t))
+        for i in self.set_C_I
+        for t in self.set_T}
+
+        self._g_count = len(self.g_vars)
+        self._vars_count = self._g_count + self._x_count + self._y_count
+
     def generate_constraint_5(self):
         green_flowrate = [
             (self.model.add_constraint(
@@ -86,7 +95,23 @@ class Constraint5Model(BaseModel):
 
     def generate(self):
         super(Constraint5Model, self).generate()
+        self.generate_g_vars()
         self.generate_constraint_5()
+
+    def return_solution(self):
+        df_x, df_y = super(Constraint5Model, self).return_solution()
+
+        df_g_raw = pd.DataFrame.from_dict(self.g_vars, orient="index", 
+                                          columns = ["variable_object"])
+
+        df_g_raw.reset_index(inplace=True)
+        df_g_raw["is_green"] = df_g_raw["variable_object"].apply(lambda item: item.solution_value)
+        df_g_raw['cell'] = df_g_raw['index'].apply(lambda x: x[0])
+        df_g_raw['timestep'] = df_g_raw['index'].apply(lambda x: x[1])
+
+        df_g = df_g_raw[['timestep', 'cell', 'is_green']]
+
+        return df_x, df_y, df_g
 
 
 class Constraint6Model(Constraint5Model):

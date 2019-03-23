@@ -120,10 +120,7 @@ class BaseModel(object):
         self.model = cpx.Model(name=self.model_name)
 
     def generate_decision_vars(self):
-        self.g_vars = {(i,t): self.model.binary_var(
-            name="g_{}^{}".format(i,t))
-        for i in self.set_C_I
-        for t in self.set_T}
+        # We won't generate g variables yet
 
         self.x_vars = {(i,t): self.model.continuous_var(
             lb=0,
@@ -140,7 +137,7 @@ class BaseModel(object):
         for j in self.S[i]
         for t in self.set_T}
 
-        self._g_count = len(self.g_vars)
+        self._g_count = 0
         self._x_count = len(self.x_vars)
         self._y_count = len(self.y_vars)
         self._vars_count = self._g_count + self._x_count + self._y_count
@@ -352,14 +349,4 @@ class BaseModel(object):
 
         df_y = df_y_raw[['timestep', 'cell_from', 'cell_to', 'flow']]
 
-        df_g_raw = pd.DataFrame.from_dict(self.g_vars, orient="index", 
-                                          columns = ["variable_object"])
-
-        df_g_raw.reset_index(inplace=True)
-        df_g_raw["is_green"] = df_g_raw["variable_object"].apply(lambda item: item.solution_value)
-        df_g_raw['cell'] = df_g_raw['index'].apply(lambda x: x[0])
-        df_g_raw['timestep'] = df_g_raw['index'].apply(lambda x: x[1])
-
-        df_g = df_g_raw[['timestep', 'cell', 'is_green']]
-        
-        return df_x, df_y, df_g
+        return df_x, df_y
