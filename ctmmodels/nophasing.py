@@ -142,6 +142,17 @@ class Constraint6Model(Constraint5Model):
             for t in self.set_T
         ]
 
+        movements_guarantee = [
+            (self.model.add_constraint(
+                ct=(
+                    self.model.sum(self.g_vars[(i,t)] for t in self.set_T)
+                    >= self.g_min
+                ),
+                ctname='movements_guarantee^{}'.format(i)
+            ))
+            for i in self.set_C_I
+        ]
+
         movements_conflicting = [
             (self.model.add_constraint(
                 ct=(
@@ -159,10 +170,11 @@ class Constraint6Model(Constraint5Model):
         self._constraints['conflicts'] = {
             'movements_min': movements_min,
             'movements_max': movements_max,
+            'movements_guarantee': movements_guarantee,
             'movements_conflicting': movements_conflicting
         }
 
-        self._constraints_count = self._constraints_count + len(movements_min) + len(movements_max) + len(movements_conflicting)
+        self._constraints_count = self._constraints_count + len(movements_min) + len(movements_max) + len(movements_guarantee) + len(movements_conflicting)
 
         return self._constraints_count
 

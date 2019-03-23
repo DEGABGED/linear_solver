@@ -134,3 +134,6 @@ def J_mapping(i):
                 (CELL_MOVEMENT, THROUGH_TURN, (i[2]+1)%4)
             ]
             return output
+
+def intToBinTuple(x):
+    return (x / 4, (x / 2) % 2, (x) % 2)
