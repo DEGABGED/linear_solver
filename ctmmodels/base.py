@@ -11,7 +11,7 @@ class BaseModel(object):
     # time_step           = 2 # seconds / time step; NOT FROM PAPER
     # time_range          = 30 # run for this many timesteps
     # demand              = 600 # saturation
-    # flow_weight         = 0.2
+    # flow_weight         = 0.2 # NOTE: No longer needed
     # alpha               = 1
     # model_name          = 'Thesis MILP Model'
 
@@ -22,14 +22,16 @@ class BaseModel(object):
     '''
 
     def __init__(self,
+                demand              = 600,  # veh / hr / lane
                 sat_flow_rate       = 450,  # veh / hr / lane
                 flow_rate_reduction = 0.5,
                 g_min               = 6,    # sec
                 g_max               = 20,   # sec
                 time_step           = 2,    # sec / timestep
                 time_range          = 30,   # timesteps (for ease of gauging the program's size)
-                demand              = 600,  # veh / hr / lane
-                flow_weight         = 0.2,
+                r_left              = 0.1,
+                r_through           = 0.8,
+                r_right             = 0.1,
                 alpha               = 1,
                 model_name          = 'Thesis MILP Model'):
 
@@ -46,8 +48,8 @@ class BaseModel(object):
         self.g_max = g_max / time_step                                          # timesteps
         self.cell_length = self.cell_length * time_step                    # ft (scaled)
 
+        self.turn_ratios = [r_left, r_through, r_right]
         self.flow_rate_reduction = flow_rate_reduction
-        self.flow_weight = flow_weight
         self.alpha = alpha
 
     def generate_sets(self):
@@ -113,7 +115,7 @@ class BaseModel(object):
         self.F = {i: F_mapping(i)
             for i in self.set_C}
 
-        self.r = {i: TURN_RATIOS[i[1]]
+        self.r = {i: self.turn_ratios[i[1]]
             for i in self.set_C_I}
 
     def reset_model(self):
@@ -295,18 +297,10 @@ class BaseModel(object):
                 self.x_vars[(i,t)] - self.model.sum(
                     self.y_vars[(i,j,t)]
                     for j in self.S[i])
-                for i in self.set_C)
-            for t in self.set_T)
-
-        F_term = self.model.sum(
-                self.model.sum(
-                    self.model.sum(
-                        self.y_vars[(i,j,t)]
-                    for j in self.S[i])
                 for i in self.set_C if i not in self.set_C_S)
             for t in self.set_T)
 
-        self._objective = self.alpha*D_term - self.flow_weight*F_term
+        self._objective = self.alpha*D_term
 
         self.model.minimize(self._objective)
     
