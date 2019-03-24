@@ -42,11 +42,19 @@ class BaseModel(object):
         self.time_step = time_step
         self.time_range = time_range
 
-        self.sat_flow_rate = (float) (sat_flow_rate * time_step) / (3600)  # veh / timesteps / lane
-        self.demand = (float) (demand * time_step) / (3600)           # veh / timesteps / lane
+        if (isinstance(demand, int)):
+            demand = list([demand]*4)
+        elif (isinstance(demand, tuple)):
+            if (len(demand) == 2):
+                demand = list(demand) + list(demand)
+            else:
+                demand = list(demand)
+
+        self.sat_flow_rate = (float) (sat_flow_rate * time_step) / (3600)       # veh / timesteps / lane
+        self.demand = [(float) (x * time_step) / (3600) for x in demand]        # veh / timesteps / lane
         self.g_min = g_min / time_step                                          # timesteps
         self.g_max = g_max / time_step                                          # timesteps
-        self.cell_length = self.cell_length * time_step                    # ft (scaled)
+        self.cell_length = self.cell_length * time_step                         # ft (scaled)
 
         self.turn_ratios = [r_left, r_through, r_right]
         self.flow_rate_reduction = flow_rate_reduction
@@ -105,7 +113,7 @@ class BaseModel(object):
                 return self.sat_flow_rate * TURN_LANES[i[1]]
             return self.sat_flow_rate * APPROACH_LANES
 
-        self.d = {(i,t): self.demand * APPROACH_LANES
+        self.d = {(i,t): self.demand[i[2]] * APPROACH_LANES
             for i in self.set_C_O
             for t in self.set_T}
 

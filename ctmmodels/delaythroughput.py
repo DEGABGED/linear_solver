@@ -10,9 +10,11 @@ from ctmmodels.altphasing import Constraint6AltPhasingModel
 
 class DelayThroughput(Constraint6Model):
 
-    def __init__(self, normalize=True, *args, **kwargs):
+    def __init__(self, normalize=True, flow_weight=0.2, use_flow_weight=False, *args, **kwargs):
         super(Constraint6Model, self).__init__(*args, **kwargs)
         self.normalize = normalize
+        self.flow_weight = flow_weight
+        self.use_flow_weight = use_flow_weight
 
     def generate_objective_fxn(self):
         # Capacities in all but the source and sink cells are full during maximum delay
@@ -23,6 +25,9 @@ class DelayThroughput(Constraint6Model):
 
         # The volume in the sink cell indicates the throughput of the intersection
         T_max =  sum([ self.M[i] for i in self.set_C_S for t in self.set_T ])
+
+        # The maximum flow in the cells
+        F_max = sum([ self.F[i] for i in self.set_C if i not in self.set_C_S for t in self.set_T ])
 
         # To prevent loss of precision, we can scale up normalized results by the magnitude of the larger of the 2 values
         scale = 10**int(log10(max(D_max, T_max)))
@@ -41,10 +46,28 @@ class DelayThroughput(Constraint6Model):
                 for i in self.set_C_S)
             for t in self.set_T)
 
+        F_term = self.model.sum(
+            self.model.sum(
+                self.model.sum(
+                    self.y_vars[(i,j,t)]
+                for j in self.S[i])
+                for i in self.set_C if i not in self.set_C_S)
+            for t in self.set_T)
+
         if (self.normalize):
-            self._objective = (self.alpha)*(D_term * scale / D_max) - (1 - self.alpha)*(T_term * scale / T_max)
+            D_coeff = (float) (self.alpha * scale / D_max)
+            T_coeff = (float) ((1 - self.alpha) * scale / T_max)
+            F_coeff = (float) (self.flow_weight * scale / F_max)
         else:
-            self._objective = (self.alpha)*D_term - (1 - self.alpha)*T_term
+            D_coeff = (float) (self.alpha)
+            T_coeff = (float) (1 - self.alpha)
+            F_coeff = (float) (self.flow_weight)
+
+        if (self.use_flow_weight):
+            self._objective = D_coeff*D_term - T_coeff*T_term - F_coeff*F_term
+        else:
+            self._objective = D_coeff*D_term - T_coeff*T_term
+
 
         self.model.minimize(self._objective)
 
@@ -58,9 +81,11 @@ class DelayThroughput(Constraint6Model):
 
 class DelayThroughputAltPhasing(Constraint6AltPhasingModel):
 
-    def __init__(self, normalize=True, *args, **kwargs):
+    def __init__(self, normalize=True, flow_weight=0.2, use_flow_weight=False, *args, **kwargs):
         super(Constraint6AltPhasingModel, self).__init__(*args, **kwargs)
         self.normalize = normalize
+        self.flow_weight = flow_weight
+        self.use_flow_weight = use_flow_weight
 
     def generate_objective_fxn(self):
         # Capacities in all but the source and sink cells are full during maximum delay
@@ -71,6 +96,9 @@ class DelayThroughputAltPhasing(Constraint6AltPhasingModel):
 
         # The volume in the sink cell indicates the throughput of the intersection
         T_max =  sum([ self.M[i] for i in self.set_C_S for t in self.set_T ])
+
+        # The maximum flow in the cells
+        F_max = sum([ self.F[i] for i in self.set_C if i not in self.set_C_S for t in self.set_T ])
 
         # To prevent loss of precision, we can scale up normalized results by the magnitude of the larger of the 2 values
         scale = 10**int(log10(max(D_max, T_max)))
@@ -89,10 +117,28 @@ class DelayThroughputAltPhasing(Constraint6AltPhasingModel):
                 for i in self.set_C_S)
             for t in self.set_T)
 
+        F_term = self.model.sum(
+            self.model.sum(
+                self.model.sum(
+                    self.y_vars[(i,j,t)]
+                for j in self.S[i])
+                for i in self.set_C if i not in self.set_C_S)
+            for t in self.set_T)
+
         if (self.normalize):
-            self._objective = (self.alpha)*(D_term * scale / D_max) - (1 - self.alpha)*(T_term * scale / T_max)
+            D_coeff = (float) (self.alpha * scale / D_max)
+            T_coeff = (float) ((1 - self.alpha) * scale / T_max)
+            F_coeff = (float) (self.flow_weight * scale / F_max)
         else:
-            self._objective = (self.alpha)*D_term - (1 - self.alpha)*T_term
+            D_coeff = (float) (self.alpha)
+            T_coeff = (float) (1 - self.alpha)
+            F_coeff = (float) (self.flow_weight)
+
+        if (self.use_flow_weight):
+            self._objective = D_coeff*D_term - T_coeff*T_term - F_coeff*F_term
+        else:
+            self._objective = D_coeff*D_term - T_coeff*T_term
+
 
         self.model.minimize(self._objective)
 
