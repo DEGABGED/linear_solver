@@ -352,3 +352,12 @@ class BaseModel(object):
         df_y = df_y_raw[['timestep', 'cell_from', 'cell_to', 'flow']]
 
         return df_x, df_y
+
+    def return_parameters(self):
+        df_M = pd.DataFrame.from_dict(self.M, orient="index", columns=["capacity"])
+        df_F = pd.DataFrame.from_dict(self.F, orient="index", columns=["max_flow"])
+
+        return pd.concat([df_M, df_F], axis=1)
+
+    def return_objective_value(self):
+        pass
