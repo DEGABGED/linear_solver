@@ -148,4 +148,14 @@ class DelayThroughputAltPhasing(Constraint6AltPhasingModel):
         self.generate_decision_vars()
         self.generate_constraints()
         self.generate_objective_fxn()
-    
+
+    def return_objective_value(self):
+        D_term = super(Constraint6AltPhasingModel, self).return_objective_value()
+
+        T_term = sum(
+            sum(
+                self.x_vars[(i,t)].solution_value
+                for i in self.set_C_S)
+            for t in self.set_T)
+
+        return (D_term, T_term)
