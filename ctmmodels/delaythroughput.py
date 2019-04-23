@@ -164,7 +164,7 @@ class DelayThroughputAltPhasing(Constraint6AltPhasingModel):
 class DelayThroughputSimplex(Constraint6AltPhasingModel):
 
     def __init__(self, normalize=True, beta=0, gamma=0, *args, **kwargs):
-        super(Constraint6AltPhasingModel, self).__init__(*args, **kwargs)
+        super(DelayThroughputSimplex, self).__init__(*args, **kwargs)
         self.normalize = normalize
         self.beta = beta
         self.gamma = gamma
@@ -227,7 +227,7 @@ class DelayThroughputSimplex(Constraint6AltPhasingModel):
         self.generate_objective_fxn()
 
     def return_objective_value(self):
-        D_term = super(Constraint6AltPhasingModel, self).return_objective_value()
+        D_term = super(DelayThroughputSimplex, self).return_objective_value()
 
         T_term = sum(
             sum(

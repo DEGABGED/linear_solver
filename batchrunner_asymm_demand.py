@@ -23,9 +23,9 @@ gg = GraphGenerator(
         os.path.dirname(os.path.realpath(__file__)),
         'graphs'
     ),
-    simplex_range=4,
-    folder='test'
+    simplex_range=10,
+    folder='asymm_demand'
 )
 
-df = pd.read_pickle("dataframes/batchrunner_test/results_simplex_d(450, 900).pkl")
-gg.plot_obj_values(df, "Test plot")
+df = pd.read_pickle("dataframes/asymm_demand/results_simplex_d(450, 900).pkl")
+gg.plot_obj_values(df, "Asymmetric demand (450, 900)", filename_partial='450_900_demand')
