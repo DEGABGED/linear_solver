@@ -33,6 +33,7 @@ class BaseModel(object):
                 r_through           = 0.8,
                 r_right             = 0.1,
                 alpha               = 1,
+                preload             = None,
                 model_name          = 'Thesis MILP Model'):
 
         self.model_name = model_name
@@ -59,6 +60,7 @@ class BaseModel(object):
         self.turn_ratios = [r_left, r_through, r_right]
         self.flow_rate_reduction = flow_rate_reduction
         self.alpha = alpha
+        self.preload = preload
 
     def generate_sets(self):
         self.set_T = range(self.time_range)
