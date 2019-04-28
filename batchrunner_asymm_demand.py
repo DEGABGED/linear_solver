@@ -24,7 +24,7 @@ gg = GraphGenerator(
         'graphs'
     ),
     simplex_range=10,
-    folder='asymm_demand'
+    folder='asymm_demand_ringbarrier'
 )
 
 df = pd.read_pickle("dataframes/asymm_demand/results_simplex_d(450, 900).pkl")

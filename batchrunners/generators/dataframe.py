@@ -4,7 +4,8 @@ import pandas as pd
 
 from batchrunners.const import *
 from ctmmodels.const import *
-from ctmmodels.delaythroughput import DelayThroughputSimplex as Model
+from ctmmodels.delaythroughput import DelayThroughputSimplex as OldModel
+from ctmmodels.ringbarrier import DTSimplexRingBarrier as Model
 
 
 class DataframeGenerator(object):

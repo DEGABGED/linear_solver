@@ -7,7 +7,7 @@ for ns_d in "${batch_demands[@]}"
 do
     for ew_d in "${all_demands[@]}"
     do
-        if [ $ew_d -le $ns_d ]
+        if [ $ew_d -lt $ns_d ]
         then
             echo "Skipping demand ${ns_d}, ${ew_d} for symmetry"
             continue

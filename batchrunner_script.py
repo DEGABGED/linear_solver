@@ -11,7 +11,7 @@ def run_test_case(demand1, demand2):
             'dataframes'
         )
     )
-    dg.run_on_simplex(demand, folder='asymm_demand')
+    dg.run_on_simplex(demand, folder='asymm_demand_ringbarrier')
 
 def main():
     run_test_case(int(sys.argv[1]), int(sys.argv[2]))
