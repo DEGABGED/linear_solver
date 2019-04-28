@@ -112,10 +112,15 @@ class GraphGenerator(object):
             thru_dict[(row[-3]*self.simplex_range, row[-2]*self.simplex_range, row[-1]*self.simplex_range)] = row[3]
             obj_dict[(row[-3]*self.simplex_range, row[-2]*self.simplex_range, row[-1]*self.simplex_range)] = row[4]
 
-        self.plot_simplex(delay_dict, "{} (Delay)".format(title_partial), "{}_delay.png".format(filename_partial), cb_kwargs={'vmin': 1200, 'vmax': 6000})
-        self.plot_simplex(thru_dict, "{} (Throughput)".format(title_partial), "{}_throughput.png".format(filename_partial), cb_kwargs={'vmin': 42, 'vmax': 45})
-        self.plot_simplex(obj_dict, "{} (Objective Value)".format(title_partial), "{}_obj.png".format(filename_partial), cb_kwargs={'vmin': -3000, 'vmax': 5000})
-        self.plot_simplex(runtime_dict, "{} (Runtime)".format(title_partial), "{}_runtime.png".format(filename_partial), cb_kwargs={'vmin': 1, 'vmax': 100})
+        #self.plot_simplex(delay_dict, "{} (Delay)".format(title_partial), "{}_delay.png".format(filename_partial), cb_kwargs={'vmin': 1200, 'vmax': 6000})
+        #self.plot_simplex(thru_dict, "{} (Throughput)".format(title_partial), "{}_throughput.png".format(filename_partial), cb_kwargs={'vmin': 42, 'vmax': 45})
+        #self.plot_simplex(obj_dict, "{} (Objective Value)".format(title_partial), "{}_obj.png".format(filename_partial), cb_kwargs={'vmin': -3000, 'vmax': 5000})
+        #self.plot_simplex(runtime_dict, "{} (Runtime)".format(title_partial), "{}_runtime.png".format(filename_partial), cb_kwargs={'vmin': 1, 'vmax': 100})
+
+        self.plot_simplex(delay_dict, "{} (Delay)".format(title_partial), "{}_delay.png".format(filename_partial))
+        self.plot_simplex(thru_dict, "{} (Throughput)".format(title_partial), "{}_throughput.png".format(filename_partial))
+        self.plot_simplex(obj_dict, "{} (Objective Value)".format(title_partial), "{}_obj.png".format(filename_partial))
+        self.plot_simplex(runtime_dict, "{} (Runtime)".format(title_partial), "{}_runtime.png".format(filename_partial))
 
     def plot_simplex(self, data, title, filename, tax=None, cb_kwargs={}):
         if tax is None:
