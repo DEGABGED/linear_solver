@@ -245,7 +245,8 @@ class ParentModel(object):
         ]
 
         constraint_init = {
-            'src': init_src
+            'src': init_src,
+            'rest': init_rest
         }
 
         # 1. Note: Kronecker delta was removed; might be added back if we don't get the results we want
