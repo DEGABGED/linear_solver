@@ -634,4 +634,20 @@ class ParentModel(object):
         return pd.concat([df_M, df_F], axis=1)
 
     def return_objective_value(self):
-        return self.model.objective_value
+        D_term = sum(
+            sum(
+                self.x_vars[(i,t)].solution_value - sum(
+                    self.y_vars[(i,j,t)].solution_value
+                    for j in self.S[i])
+                for i in self.set_C if i not in self.set_C_S)
+            for t in self.set_T)
+
+        T_term = sum(
+            sum(
+                self.x_vars[(i,t)].solution_value
+                for i in self.set_C_S)
+            for t in self.set_T)
+
+        Obj_value = self.model.objective_value
+
+        return (D_term, T_term, Obj_value)
