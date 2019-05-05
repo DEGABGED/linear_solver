@@ -623,7 +623,9 @@ class ParentModel(object):
         df_g_raw['cell'] = df_g_raw['index'].apply(lambda x: x[0])
         df_g_raw['timestep'] = df_g_raw['index'].apply(lambda x: x[1])
 
-        df_g = df_g_raw[['timestep', 'cell', 'is_green']]
+        df_g_stacked = df_g_raw[['timestep', 'cell', 'is_green']]
+
+        df_g = df_g_stacked.sort_values(by='timestep').pivot(index='timestep', columns='cell', values='is_green').astype('int16')
 
         return df_x, df_y, df_g
 
