@@ -237,7 +237,7 @@ class ParentModel(object):
             (self.model.add_constraint(
                 ct=(
                     self.x_vars[(i,0)]
-                    == (0 if self.preload is None else int(self.preload[i]))
+                    == (0 if self.preload is None else min(self.preload[i], self.M[i]))
                 ),
                 ctname="init_rest_{}".format(i)
             ))
