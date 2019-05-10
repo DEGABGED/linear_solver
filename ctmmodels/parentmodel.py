@@ -653,3 +653,26 @@ class ParentModel(object):
         Obj_value = self.model.objective_value
 
         return (D_term, T_term, Obj_value)
+
+    def return_volume(self):
+        '''Returns final volumes of approaches'''
+        V = [
+            sum(
+                self.x_vars[(i,self.time_range-1)].solution_value
+            for i in self.set_C_minS if i[2] == k)
+        for k in range(APPROACHES)]
+
+        return V
+
+    def return_delay_equity(self):
+        '''Returns delay per approach'''
+        D_equity = [sum(
+            sum(
+                self.x_vars[(i,t)].solution_value - sum(
+                    self.y_vars[(i,j,t)].solution_value
+                    for j in self.S[i])
+                for i in self.set_C_minS if i[2] == k)
+            for t in self.set_T) * self.time_step
+        for k in range(APPROACHES)]
+
+        return D_equity
