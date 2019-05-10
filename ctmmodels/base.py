@@ -93,6 +93,9 @@ class BaseModel(object):
             'normal'
         ]
 
+        # Set of all cells except sink cells
+        self.set_C_minS = [i for i in self.set_C if i not in self.set_C_S]
+
         self.P = {i: P_mapping(i)
             for i in self.set_C}
 
@@ -401,12 +404,24 @@ class BaseModel(object):
         return D_term
 
     def return_volume(self):
-        '''Returns 2D matrix of volumes per approach over time'''
-        dfx, _ = self.return_solution()
-        dfx['approach'] = dfx['cell'].apply(lambda x: x[2])
-        dfx_table = dfx.pivot_table(index='timestep', columns='approach', values='volume', aggfunc='sum')
-        return dfx_table.values
+        '''Returns final volumes of approaches'''
+        V = [
+            sum(
+                self.x_vars[(i,self.time_range-1)].solution_value
+            for i in self.set_C_minS if i[2] == k)
+        for k in range(APPROACHES)]
+
+        return V
 
     def return_delay_equity(self):
         '''Returns delay per approach'''
-        dfx, dfy = self.return_solution()
+        D_equity = [sum(
+            sum(
+                self.x_vars[(i,t)].solution_value - sum(
+                    self.y_vars[(i,j,t)].solution_value
+                    for j in self.S[i])
+                for i in self.set_C_minS if i[2] == k)
+            for t in self.set_T) * self.time_step
+        for k in range(APPROACHES)]
+
+        return D_equity
