@@ -399,3 +399,14 @@ class BaseModel(object):
             for t in self.set_T) * self.time_step
 
         return D_term
+
+    def return_volume(self):
+        '''Returns 2D matrix of volumes per approach over time'''
+        dfx, _ = self.return_solution()
+        dfx['approach'] = dfx['cell'].apply(lambda x: x[2])
+        dfx_table = dfx.pivot_table(index='timestep', columns='approach', values='volume', aggfunc='sum')
+        return dfx_table.values
+
+    def return_delay_equity(self):
+        '''Returns delay per approach'''
+        dfx, dfy = self.return_solution()

@@ -145,7 +145,7 @@ class DTSimplexRingBarrier(RingBarrier):
                 self.x_vars[(i,t)] - self.model.sum(
                     self.y_vars[(i,j,t)]
                     for j in self.S[i])
-                for i in self.set_C) # Won't make a difference on the y term, and will be more accurate for the x term
+                for i in self.set_C if i not in self.set_C_S)
             for t in self.set_T)
 
         T_term = self.model.sum(
