@@ -89,14 +89,16 @@ class ParentModel(object):
 
         # Set of all cells: (cell_type, x, y)
         self.set_C = self.set_C_O + self.set_C_S + self.set_C_I + self.set_C_N
+
+        # Set of all cells except sink cells
+        self.set_C_minS = [i for i in self.set_C if i not in self.set_C_S]
+
         self.set_C_labels = [
             'source',
             'sink',
             'movement',
             'normal'
         ]
-
-        # Define sets CF_LT, CC_LR, CC_RT once I know what they fucking are
 
         # Pairs of CONFLICTING left and through turns
         self.set_CF_LT = [
