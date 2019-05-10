@@ -642,7 +642,7 @@ class ParentModel(object):
                     self.y_vars[(i,j,t)].solution_value
                     for j in self.S[i])
                 for i in self.set_C if i not in self.set_C_S)
-            for t in self.set_T)
+            for t in self.set_T) * self.time_step
 
         T_term = sum(
             sum(
