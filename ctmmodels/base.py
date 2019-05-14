@@ -34,7 +34,7 @@ class BaseModel(object):
                 r_right             = 0.25,
                 alpha               = 1,
                 preload             = None,
-                model_name          = 'Thesis MILP Model'):
+                model_name          = 'Base Extended Model'):
 
         self.model_name = model_name
         self.model = cpx.Model(name=self.model_name)

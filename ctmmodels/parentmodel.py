@@ -33,7 +33,7 @@ class ParentModel(object):
                 r_through           = 0.5,
                 r_right             = 0.25,
                 preload             = None,
-                model_name          = 'Thesis Parent Model'):
+                model_name          = 'Parent Model'):
 
         self.model_name = model_name
         self.model = cpx.Model(name=self.model_name)
@@ -116,9 +116,8 @@ class ParentModel(object):
         ]
 
         self.set_CC_LR = [
-            ((2, LEFT_TURN, i), (2, RIGHT_TURN, j))
+            ((2, LEFT_TURN, i), (2, RIGHT_TURN, (i+1)%APPROACHES))
             for i in range(APPROACHES)
-            for j in range(APPROACHES) if (i - j != 2 and j - i != 2)
         ]
 
         self.set_CC_RT = [

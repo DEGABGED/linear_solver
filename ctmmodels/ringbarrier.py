@@ -163,9 +163,9 @@ class DTSimplexRingBarrier(RingBarrier):
             for t in self.set_T)
 
         if (self.normalize):
-            D_coeff = (float) (self.alpha * scale / D_max)
-            T_coeff = (float) (self.beta * scale / T_max)
-            F_coeff = (float) (self.gamma * scale / F_max)
+            D_coeff = (float) (self.alpha * scale) / D_max
+            T_coeff = (float) (self.beta * scale) / T_max
+            F_coeff = (float) (self.gamma * scale) / F_max
         else:
             D_coeff = (float) (self.alpha)
             T_coeff = (float) (self.beta)
