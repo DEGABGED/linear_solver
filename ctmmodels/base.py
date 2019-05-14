@@ -23,15 +23,15 @@ class BaseModel(object):
 
     def __init__(self,
                 demand              = 600,  # veh / hr / lane
-                sat_flow_rate       = 450,  # veh / hr / lane
-                flow_rate_reduction = 0.5,
+                sat_flow_rate       = 1800,  # veh / hr / lane
+                flow_rate_reduction = 1,
                 g_min               = 6,    # sec
                 g_max               = 20,   # sec
                 time_step           = 2,    # sec / timestep
                 time_range          = 30,   # timesteps (for ease of gauging the program's size)
-                r_left              = 0.1,
-                r_through           = 0.8,
-                r_right             = 0.1,
+                r_left              = 0.25,
+                r_through           = 0.5,
+                r_right             = 0.25,
                 alpha               = 1,
                 preload             = None,
                 model_name          = 'Thesis MILP Model'):
@@ -185,7 +185,8 @@ class BaseModel(object):
         ]
 
         constraint_init = {
-            'src': init_src
+            'src': init_src,
+            'rest': init_rest
         }
 
         flowcon_1 = [

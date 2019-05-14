@@ -24,14 +24,14 @@ class ParentModel(object):
     def __init__(self,
                 demand              = 600,  # veh / hr / lane
                 sat_flow_rate       = 1800,  # veh / hr / lane
-                flow_rate_reduction = 0.5,
+                flow_rate_reduction = 1,
                 g_min               = 6,    # sec
                 g_max               = 20,   # sec
                 time_step           = 2,    # sec / timestep
                 time_range          = 30,   # timesteps (for ease of gauging the program's size)
-                r_left              = 1.0/3.0,
-                r_through           = 1.0/3.0,
-                r_right             = 1.0/3.0,
+                r_left              = 0.25,
+                r_through           = 0.5,
+                r_right             = 0.25,
                 preload             = None,
                 model_name          = 'Thesis Parent Model'):
 
@@ -122,9 +122,8 @@ class ParentModel(object):
         ]
 
         self.set_CC_RT = [
-            ((2, RIGHT_TURN, i), (2, THROUGH_TURN, j))
+            ((2, RIGHT_TURN, i), (2, THROUGH_TURN, i))
             for i in range(APPROACHES)
-            for j in range(APPROACHES) if (j == (i+1)%APPROACHES)
         ]
 
         self.P = {i: P_mapping(i)
@@ -182,8 +181,6 @@ class ParentModel(object):
         self.model = cpx.Model(name=self.model_name)
 
     def generate_decision_vars(self):
-        # We won't generate g variables yet
-
         self.x_vars = {(i,t): self.model.continuous_var(
             lb=0,
             ub=self.M[i],
